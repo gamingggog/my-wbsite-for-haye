@@ -66,6 +66,19 @@ let totalSpins = 0;
 let totalWagered = 0;
 let totalWon = 0;
 
+// Add this function for special bets
+const setSpecialBet = (type) => {
+  switch(type) {
+    case 'all':
+      currentBet = casinoBalance;
+      break;
+    case 'half':
+      currentBet = Math.floor(casinoBalance / 2);
+      break;
+  }
+  updateUI();
+};
+
 // Update the Casino's updateUI function
 const updateUI = () => {
   document.getElementById('balance').textContent = casinoBalance.toFixed(2);
@@ -79,6 +92,10 @@ const updateUI = () => {
   
   const spinButton = document.getElementById('spin');
   spinButton.disabled = casinoBalance < currentBet;
+
+  // Update special bet buttons
+  document.getElementById('all-in-btn').disabled = casinoBalance <= 0;
+  document.getElementById('half-in-btn').disabled = casinoBalance <= 1;
 };
 
 // Email App functionality
@@ -656,6 +673,10 @@ document.getElementById('decrease-bet').addEventListener('click', () => {
     updateUI();
   }
 });
+
+// Add special bet button listeners
+document.getElementById('all-in-btn').addEventListener('click', () => setSpecialBet('all'));
+document.getElementById('half-in-btn').addEventListener('click', () => setSpecialBet('half'));
 
 // Initial UI update
 updateBankUI();
