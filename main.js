@@ -566,7 +566,23 @@ const checkWin = (results) => {
   return 0;
 };
 
-// Modify the spin function
+const createMoneyRain = () => {
+  const moneyRain = document.createElement('div');
+  moneyRain.className = 'money-rain';
+  
+  for (let i = 0; i < 50; i++) {
+    const money = document.createElement('div');
+    money.className = 'money';
+    money.style.left = `${Math.random() * 100}%`;
+    money.style.animationDelay = `${Math.random() * 1.5}s`;
+    money.innerHTML = '💵';
+    moneyRain.appendChild(money);
+  }
+  
+  document.querySelector('.slot-machine').appendChild(moneyRain);
+  setTimeout(() => moneyRain.remove(), 3000);
+};
+
 const spin = async () => {
   if (casinoBalance < currentBet) return;
 
@@ -588,7 +604,29 @@ const spin = async () => {
     casinoBalance += winAmount;
     totalWon += winAmount;
     const multiplier = (winAmount / currentBet).toFixed(1);
+    
+    // Create win overlay
+    const winOverlay = document.createElement('div');
+    winOverlay.className = 'win-overlay';
+    winOverlay.innerHTML = `<div>BIG WIN!<br>${formatMoney(winAmount)}</div>`;
+    document.querySelector('.slot-machine').appendChild(winOverlay);
+    
+    // Show win message with enhanced animation
     showMessage(`You won ${formatMoney(winAmount)} (${multiplier}x)!`, true);
+    
+    // Add money rain effect for big wins
+    if (winAmount >= currentBet * 5) {
+      createMoneyRain();
+    }
+    
+    // Show overlay with animation
+    setTimeout(() => winOverlay.classList.add('show'), 100);
+    
+    // Remove overlay after animation
+    setTimeout(() => {
+      winOverlay.classList.remove('show');
+      setTimeout(() => winOverlay.remove(), 300);
+    }, 2000);
     
     // Add winning transaction to bank
     const transactionDiv = document.createElement('div');
@@ -1473,4 +1511,194 @@ class ClockApp {
 // Initialize ClockApp when document is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const clockApp = new ClockApp();
+});
+
+const validCodes = {
+  '2PPL': {
+    reward: 100000,
+    used: false
+  },
+  'GOLDENEGG': {
+    reward: 50000,
+    used: false
+  },
+  'SUMMERFUN': {
+    reward: 25000,
+    used: false
+  },
+  'MYSTICKEY': {
+    reward: 75000,
+    used: false
+  },
+  'STARLIGHT': {
+    reward: 40000,
+    used: false
+  },
+  'WINTERWONDER': {
+    reward: 60000,
+    used: false
+  },
+  'DAILYDOSE': {
+    reward: 15000,
+    used: false
+  },
+  'TREASURECHEST': {
+    reward: 80000,
+    used: false
+  },
+  'SUPERSTAR': {
+    reward: 45000,
+    used: false
+  },
+  'FLYAWAY': {
+    reward: 35000,
+    used: false
+  },
+  'HAPPYHALLOWEEN': {
+    reward: 66600,
+    used: false
+  },
+  'MERRYCHRISTMAS': {
+    reward: 25000,
+    used: false
+  },
+  'THANKYOU': {
+    reward: 10000,
+    used: false
+  },
+  'FREEDOMFIGHTER': {
+    reward: 17760,
+    used: false
+  },
+  'COSMICRIDE': {
+    reward: 42000,
+    used: false
+  },
+  'SQUADGOALS': {
+    reward: 30000,
+    used: false
+  },
+  'RACINGWITHTHEWIND': {
+    reward: 55000,
+    used: false
+  },
+  'DREAMBIG': {
+    reward: 70000,
+    used: false
+  },
+  'PURPLEHEART': {
+    reward: 25000,
+    used: false
+  },
+  'GHOSTMODE': {
+    reward: 31000,
+    used: false
+  },
+  'ROCKETROCK': {
+    reward: 45000,
+    used: false
+  },
+  'LUMINOUSLIE': {
+    reward: 28000,
+    used: false
+  },
+  'BATTLETESTED': {
+    reward: 65000,
+    used: false
+  },
+  'TIMEWARP': {
+    reward: 88000,
+    used: false
+  },
+  'CRYSTALCLEAR': {
+    reward: 37000,
+    used: false
+  },
+  'ENDLESSREWARDS': {
+    reward: 'random',
+    used: false
+  }
+};
+
+const redeemCode = () => {
+  const codeInput = document.getElementById('code-input');
+  const redeemButton = document.getElementById('redeem-code-btn');
+  const messageDiv = document.getElementById('code-message');
+  
+  const code = codeInput.value.trim().toUpperCase();
+  
+  if (validCodes[code] && !validCodes[code].used) {
+    let reward = validCodes[code].reward;
+    
+    // Handle random reward for ENDLESSREWARDS code
+    if (code === 'ENDLESSREWARDS') {
+      const randomMultiplier = Math.floor(Math.random() * 10) + 1; // 1-10x multiplier
+      reward = randomMultiplier * 10000; // Random reward between 10,000 and 100,000
+    }
+    
+    // Add money and mark code as used
+    bankBalance += reward;
+    validCodes[code].used = true;
+    
+    // Update UI
+    updateBankUI();
+    messageDiv.textContent = `Success! You received $${reward.toLocaleString()}!`;
+    messageDiv.className = 'code-message success';
+    
+    // Add celebration effect
+    messageDiv.style.animation = 'none';
+    messageDiv.offsetHeight; // Trigger reflow
+    messageDiv.style.animation = 'fadeIn 0.5s';
+    
+    // Add transaction record
+    const transactionDiv = document.createElement('div');
+    transactionDiv.className = 'transaction';
+    transactionDiv.innerHTML = `
+      <i class="fas fa-gift"></i>
+      <div class="transaction-details">
+        <div class="merchant">Code Redemption (${code})</div>
+        <div class="date">${new Date().toLocaleDateString()}</div>
+      </div>
+      <div class="amount positive">+${formatMoney(reward)}</div>
+    `;
+    document.querySelector('.transactions').insertBefore(
+      transactionDiv,
+      document.querySelector('.transactions').firstChild
+    );
+    
+    // Add special effects for big rewards
+    const balanceDisplay = document.querySelector('.balance');
+    balanceDisplay.style.animation = 'none';
+    balanceDisplay.offsetHeight; // Trigger reflow
+    
+    if (reward >= 50000) {
+      balanceDisplay.style.animation = 'flash 0.5s 3'; // Flash 3 times for big rewards
+    } else {
+      balanceDisplay.style.animation = 'flash 0.5s';
+    }
+    
+    // Clear input
+    codeInput.value = '';
+    
+  } else if (validCodes[code] && validCodes[code].used) {
+    messageDiv.textContent = 'This code has already been used!';
+    messageDiv.className = 'code-message error';
+  } else {
+    messageDiv.textContent = 'Invalid code!';
+    messageDiv.className = 'code-message error';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  // ... existing initialization code ...
+  
+  // Code redemption event listener
+  document.getElementById('redeem-code-btn').addEventListener('click', redeemCode);
+  
+  // Add keypress support for enter key
+  document.getElementById('code-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      redeemCode();
+    }
+  });
 });
