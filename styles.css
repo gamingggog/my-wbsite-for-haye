@@ -1358,3 +1358,32 @@ body {
   font-family: 'Digital';
   src: url('https://fonts.gstatic.com/s/share/v14/i7dJIFliZJMF8FQrYhQ.woff2') format('woff2');
 }
+
+.special-bets {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.special-bet-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.special-bet-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #c0392b, #a33326);
+}
+
+.special-bet-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
