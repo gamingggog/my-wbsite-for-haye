@@ -75,8 +75,8 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .balance-card {
@@ -332,6 +332,8 @@ body {
 }
 
 .slot-machine {
+  position: relative;
+  overflow: hidden;
   background: #2c3e50;
   border-radius: 15px;
   padding: 20px;
@@ -412,35 +414,80 @@ body {
   height: 24px;
   font-size: 1.2em;
   margin: 10px 0;
+  transition: all 0.3s;
 }
 
 .message.win {
   color: #2ecc71;
   font-weight: bold;
-  transform: scale(1.1);
-  transition: transform 0.2s;
+  font-size: 1.6em;
+  text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+  animation: bigWinPulse 0.5s ease-in-out infinite;
 }
 
-.paytable {
-  background: rgba(0,0,0,0.2);
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
+@keyframes bigWinPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
-.paytable h3 {
-  text-align: center;
-  margin-bottom: 10px;
+.win-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+  color: gold;
+  text-shadow: 0 0 10px #ffd700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 10;
 }
 
-.paytable div {
-  text-align: center;
-  padding: 5px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+.win-overlay.show {
+  opacity: 1;
+  animation: winOverlayShow 1s ease-out;
 }
 
-.paytable div:last-child {
-  border-bottom: none;
+@keyframes winOverlayShow {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.money-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.money {
+  position: absolute;
+  color: #2ecc71;
+  font-size: 24px;
+  animation: moneyFall 3s linear;
+  opacity: 0;
+}
+
+@keyframes moneyFall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(800px) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 .transfer-controls {
@@ -1150,9 +1197,9 @@ body {
   color: white;
   border: none;
   padding: 10px 20px;
+  font-size: 1.1em;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1.1em;
   transition: all 0.2s;
 }
 
@@ -1386,4 +1433,68 @@ body {
   background: #95a5a6;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.code-redemption {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+}
+
+.code-input-container {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.code-input-container input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.code-input-container button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.code-input-container button:hover {
+  background: #1565c0;
+  transform: scale(1.05);
+}
+
+.code-input-container button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.code-message {
+  margin-top: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.code-message.success {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.code-message.error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
