@@ -2,16 +2,379 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Clone</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/@apollo/client@3.7.14/dist/apollo-client.umd.min.js"></script>
+  <title>Digital Hub</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel" src="app.js"></script>
+  <div class="app-container">
+    <nav class="app-nav">
+      <button class="nav-btn active" data-app="bank">
+        <i class="fas fa-university"></i>
+        <span>MyBank</span>
+      </button>
+      <button class="nav-btn" data-app="email">
+        <i class="fas fa-envelope"></i>
+        <span>Email</span>
+      </button>
+      <button class="nav-btn" data-app="hub">
+        <i class="fas fa-users"></i>
+        <span>TheHub</span>
+      </button>
+      <button class="nav-btn" data-app="casino">
+        <i class="fas fa-dice"></i>
+        <span>Casino</span>
+      </button>
+      <button class="nav-btn" data-app="roulette">
+        <i class="fas fa-skull"></i>
+        <span>Roulette</span>
+      </button>
+      <button class="nav-btn" data-app="stocks">
+        <i class="fas fa-chart-line"></i>
+        <span>Stocks</span>
+      </button>
+      <button class="nav-btn" data-app="jobs">
+        <i class="fas fa-briefcase"></i>
+        <span>Jobs</span>
+      </button>
+      <button class="nav-btn" data-app="clock">
+        <i class="fas fa-clock"></i>
+        <span>Clock</span>
+      </button>
+    </nav>
+
+    <main class="app-content">
+      <!-- Bank App -->
+      <section class="app-section active" id="bank-app">
+        <h2>MyBank</h2>
+        <div class="balance-card">
+          <h3>Current Balance</h3>
+          <div class="balance">$2,456.78</div>
+          <div class="quick-actions">
+            <button><i class="fas fa-paper-plane"></i> Send</button>
+            <button><i class="fas fa-download"></i> Deposit</button>
+            <button><i class="fas fa-history"></i> History</button>
+          </div>
+        </div>
+        <div class="transactions">
+          <h3>Recent Transactions</h3>
+          <div class="transaction">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="transaction-details">
+              <div class="merchant">Amazon.com</div>
+              <div class="date">Oct 15, 2023</div>
+            </div>
+            <div class="amount negative">-$45.99</div>
+          </div>
+          <div class="transaction">
+            <i class="fas fa-credit-card"></i>
+            <div class="transaction-details">
+              <div class="merchant">Salary Deposit</div>
+              <div class="date">Oct 14, 2023</div>
+            </div>
+            <div class="amount positive">+$2,500.00</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Email App -->
+      <section class="app-section" id="email-app">
+        <h2>Email</h2>
+        <div class="email-controls">
+          <button class="compose-btn"><i class="fas fa-pen"></i> Compose</button>
+          <div class="email-search">
+            <input type="text" placeholder="Search emails...">
+          </div>
+        </div>
+        <div class="email-list">
+          <!-- Emails will be dynamically added here -->
+        </div>
+
+        <!-- Compose Email Modal -->
+        <div id="compose-modal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Compose Email</h3>
+              <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+              <input type="text" id="email-subject" placeholder="Subject" class="email-input">
+              <textarea id="email-content" placeholder="Write your message..." class="email-textarea"></textarea>
+              <button id="send-email" class="send-btn">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Email Modal -->
+        <div id="email-modal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Email</h3>
+              <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+              <div class="email-content"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TheHub App -->
+      <section class="app-section" id="hub-app">
+        <h2>TheHub</h2>
+        <div class="post-composer">
+          <textarea placeholder="What's on your mind?"></textarea>
+          <button id="post-btn"><i class="fas fa-paper-plane"></i> Post</button>
+        </div>
+        <div class="feed">
+          <!-- Posts will be dynamically added here -->
+        </div>
+        
+        <!-- AI Response Modal -->
+        <div id="ai-modal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>AI is typing...</h3>
+              <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="ai-response"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Casino App -->
+      <section class="app-section" id="casino-app">
+        <h2>Casino</h2>
+        <div class="casino-container">
+          <div class="slot-machine">
+            <div class="stats">
+              <div>Balance: $<span id="balance">100</span></div>
+              <div>Bet: $<span id="current-bet">10</span></div>
+              <div>Total Spins: <span id="total-spins">0</span></div>
+              <div>Return: <span id="return-percentage">0</span>%</div>
+            </div>
+            <div class="reels">
+              <div class="reel" id="reel1">🍒</div>
+              <div class="reel" id="reel2">🍒</div>
+              <div class="reel" id="reel3">🍒</div>
+            </div>
+            <div id="message" class="message"></div>
+            <div class="controls">
+              <button id="decrease-bet">-</button>
+              <button id="spin">SPIN</button>
+              <button id="increase-bet">+</button>
+            </div>
+            <div class="paytable">
+              <h3>Pay Table</h3>
+              <div>🎰 × 3 = 30x</div>
+              <div>7️⃣ × 3 = 20x</div>
+              <div>💎 × 3 = 12x</div>
+              <div>🍇 × 3 = 6x</div>
+              <div>🍊 × 3 = 4x</div>
+              <div>🍒 × 3 = 2x</div>
+              <div>Any 2 matching = 0.5x</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roulette App -->
+      <section class="app-section" id="roulette-app">
+        <h2>Russian Roulette</h2>
+        <div class="roulette-container">
+          <div class="revolver">
+            <svg viewBox="0 0 100 100" class="cylinder">
+              <circle cx="50" cy="50" r="45" class="cylinder-body"/>
+              <circle cx="50" cy="20" r="8" class="chamber"/>
+              <circle cx="75" cy="35" r="8" class="chamber"/>
+              <circle cx="75" cy="65" r="8" class="chamber"/>
+              <circle cx="50" cy="80" r="8" class="chamber"/>
+              <circle cx="25" cy="65" r="8" class="chamber"/>
+              <circle cx="25" cy="35" r="8" class="chamber"/>
+            </svg>
+            <div class="status">Pull the trigger if you dare...</div>
+          </div>
+          <div class="roulette-stats">
+            <div>Potential Prize: $1,000</div>
+            <div>Lives: <span id="lives">3</span></div>
+            <div>Games Won: <span id="games-won">0</span></div>
+          </div>
+          <button id="pull-trigger" class="trigger-btn">PULL TRIGGER</button>
+          <button id="new-game" class="new-game-btn" style="display: none;">NEW GAME</button>
+        </div>
+        <div class="game-over-overlay">
+          <div class="game-over-content">
+            <h2>GAME OVER</h2>
+            <p>You didn't make it...</p>
+            <button id="try-again">TRY AGAIN</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stock Market App -->
+      <section class="app-section" id="stocks-app">
+        <h2>Stock Market</h2>
+        <div class="stock-container">
+          <div class="portfolio-summary">
+            <div class="portfolio-value">
+              <h3>Portfolio Value</h3>
+              <div class="value">$<span id="portfolio-value">0.00</span></div>
+              <div id="portfolio-change" class="change">+0.00%</div>
+            </div>
+            <div class="quick-trade">
+              <input type="number" id="trade-amount" placeholder="Amount" min="10" step="10" value="100">
+              <button id="invest-btn">Invest</button>
+            </div>
+          </div>
+
+          <div class="stock-list">
+            <div class="stock-header">
+              <div>Stock</div>
+              <div>Price</div>
+              <div>Change</div>
+              <div>Holdings</div>
+              <div>Actions</div>
+            </div>
+            <div id="stocks-container">
+              <!-- Stock items will be dynamically added here -->
+            </div>
+          </div>
+
+          <div class="market-news">
+            <h3>Market News</h3>
+            <div id="news-container">
+              <!-- News items will be dynamically added here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Jobs App -->
+      <section class="app-section" id="jobs-app">
+        <h2>Job Board</h2>
+        <div class="jobs-container">
+          <div class="job-filters">
+            <input type="text" id="job-search" placeholder="Search jobs...">
+            <select id="job-category">
+              <option value="">All Categories</option>
+              <option value="tech">Technology</option>
+              <option value="finance">Finance</option>
+              <option value="service">Service</option>
+              <option value="retail">Retail</option>
+            </select>
+          </div>
+
+          <div class="jobs-list">
+            <!-- Jobs will be populated here -->
+          </div>
+
+          <!-- Job Application Modal -->
+          <div id="job-modal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Apply for Position</h3>
+                <span class="close-modal">&times;</span>
+              </div>
+              <div class="modal-body">
+                <form id="job-application">
+                  <input type="text" placeholder="Your Name" required>
+                  <textarea placeholder="Why should we hire you?" required></textarea>
+                  <div class="application-status"></div>
+                  <button type="submit" class="apply-btn">Submit Application</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Modal -->
+          <div id="work-modal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Working...</h3>
+                <span class="close-modal">&times;</span>
+              </div>
+              <div class="modal-body">
+                <div class="work-progress">
+                  <div class="progress-bar"></div>
+                </div>
+                <div class="work-status">Starting your shift...</div>
+                <div class="work-actions">
+                  <button id="work-harder" class="work-btn">Work Harder!</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clock App -->
+      <section class="app-section" id="clock-app">
+        <h2>Clock</h2>
+        <div class="clock-container">
+          <!-- Digital Clock -->
+          <div class="digital-clock">
+            <div class="time" id="digital-time">00:00:00</div>
+            <div class="date" id="digital-date">Monday, January 1, 2024</div>
+          </div>
+          
+          <!-- Analog Clock -->
+          <div class="analog-clock">
+            <div class="hand hour-hand"></div>
+            <div class="hand minute-hand"></div>
+            <div class="hand second-hand"></div>
+            <div class="center-dot"></div>
+            <div class="markers">
+              <div class="marker marker-3">3</div>
+              <div class="marker marker-6">6</div>
+              <div class="marker marker-9">9</div>
+              <div class="marker marker-12">12</div>
+            </div>
+          </div>
+          
+          <!-- World Clocks -->
+          <div class="world-clocks">
+            <h3>World Time</h3>
+            <div class="world-clock-grid">
+              <div class="world-clock-item">
+                <div class="city">New York</div>
+                <div class="time" id="ny-time">00:00</div>
+              </div>
+              <div class="world-clock-item">
+                <div class="city">London</div>
+                <div class="time" id="london-time">00:00</div>
+              </div>
+              <div class="world-clock-item">
+                <div class="city">Tokyo</div>
+                <div class="time" id="tokyo-time">00:00</div>
+              </div>
+              <div class="world-clock-item">
+                <div class="city">Sydney</div>
+                <div class="time" id="sydney-time">00:00</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stopwatch -->
+          <div class="stopwatch">
+            <h3>Stopwatch</h3>
+            <div class="stopwatch-display" id="stopwatch-display">00:00:00</div>
+            <div class="stopwatch-controls">
+              <button id="start-stopwatch" class="clock-btn">Start</button>
+              <button id="stop-stopwatch" class="clock-btn">Stop</button>
+              <button id="reset-stopwatch" class="clock-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
