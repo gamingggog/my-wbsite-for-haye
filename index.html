@@ -1,141 +1,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Haye and His Brainrot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Clone</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@apollo/client@3.7.14/dist/apollo-client.umd.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <header>
-    <h1>Haye and His Brainrot</h1>
-    <nav>
-      <ul>
-        <li><a href="#about">About Haye</a></li>
-        <li><a href="#brainrot">Brainrot</a></li>
-        <li><a href="#gallery">Gallery</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#blog">Blog</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-  
-  <main>
-    <section id="about">
-      <h2>About Haye</h2>
-      <p>Welcome to the whimsical world of Haye, where imagination meets chaos! Dive into the adventures and peculiar thoughts of Haye as he navigates through his fascinating brainrot.</p>
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="40" stroke="#ff6347" stroke-width="4" fill="#ffe4e1" class="pulse"/>
-      </svg>
-    </section>
-
-    <section id="brainrot">
-      <h2>Brainrot</h2>
-      <p>Brainrot is Haye's creative whirlwind, a blend of quirky ideas and spontaneous inspirations. Explore the colorful chaos that fuels his unique perspective.</p>
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <rect width="80" height="80" x="10" y="10" fill="#add8e6" stroke="#00008b" stroke-width="3" class="rotate"/>
-      </svg>
-    </section>
-
-    <section id="gallery">
-      <h2>Gallery</h2>
-      <div class="gallery-grid">
-        <div class="gallery-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <polygon points="50,15 80,80 20,80" fill="#90ee90" class="bounce"/>
-          </svg>
-        </div>
-        <div class="gallery-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <ellipse cx="50" cy="50" rx="30" ry="15" fill="#ffb6c1" class="shake"/>
-          </svg>
-        </div>
-        <div class="gallery-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <line x1="10" y1="10" x2="90" y2="90" stroke="#dda0dd" stroke-width="5" class="highlight"/>
-          </svg>
-        </div>
-      </div>
-    </section>
-
-    <section id="projects">
-      <h2>Projects</h2>
-      <p>Discover the latest projects that Haye has been working on. From quirky apps to creative art pieces, dive into the diverse range of creations fueled by his brainrot.</p>
-      <div class="projects-grid">
-        <div class="project-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="30" fill="#ffa07a" class="spin"/>
-          </svg>
-          <h3>Project Alpha</h3>
-          <p>A creative app that turns your thoughts into colorful animations.</p>
-        </div>
-        <div class="project-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <rect width="60" height="60" x="20" y="20" fill="#20b2aa" class="pulse-large"/>
-          </svg>
-          <h3>Project Beta</h3>
-          <p>An interactive art piece that reacts to your emotions.</p>
-        </div>
-        <div class="project-item">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <polygon points="50,10 90,90 10,90" fill="#ffdead" class="bounce-large"/>
-          </svg>
-          <h3>Project Gamma</h3>
-          <p>A whimsical game that challenges your creativity.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="blog">
-      <h2>Blog</h2>
-      <div class="blog-posts">
-        <article class="blog-post">
-          <h3>Embracing the Chaos</h3>
-          <p>Understanding how brainrot fuels creativity and innovation.</p>
-          <a href="#" class="read-more">Read More</a>
-        </article>
-        <article class="blog-post">
-          <h3>Top 10 Brainrot Inspirations</h3>
-          <p>Exploring the sources of Haye's most creative ideas.</p>
-          <a href="#" class="read-more">Read More</a>
-        </article>
-        <article class="blog-post">
-          <h3>Animating Ideas with SVG</h3>
-          <p>A deep dive into creating dynamic SVG animations for the web.</p>
-          <a href="#" class="read-more">Read More</a>
-        </article>
-      </div>
-    </section>
-
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>Have questions or want to collaborate with Haye? Get in touch!</p>
-      <form id="contact-form">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-      
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-      
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" rows="4" required></textarea>
-      
-        <button type="submit">Send</button>
-      </form>
-    </section>
-  </main>
-  
-  <footer>
-    <p>&copy; 2023 Haye's Brainrot</p>
-    <div class="social-icons">
-      <a href="#"><svg><!-- Facebook SVG Icon --></svg></a>
-      <a href="#"><svg><!-- Twitter SVG Icon --></svg></a>
-      <a href="#"><svg><!-- Instagram SVG Icon --></svg></a>
-    </div>
-  </footer>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-Xa4OlWdNZVMq6gYcZKzjclGJfgVBAIWSF0K5vS5jKvE3GvJRHopr0RPM1GVfCz1bYP2NUljnNPVxGsXvGQcG2w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js" integrity="sha512-CdwegquRi4q1pKkuvE2Jd6xWKkL8W1JfSWAydxms8J/ZtuXb3EJ69MYC5lS7Kp6a5go2z0p7jRm6D69YBq6E6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="script.js"></script>
+  <div id="root"></div>
+  <script type="text/babel" src="app.js"></script>
 </body>
 </html>
