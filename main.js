@@ -1,6 +1,115 @@
+// Constants
+const SAVE_KEY = 'digital_hub_save';
+const CLICK_TRACKING = {
+  lastClick: 0,
+  clickCount: 0,
+  resetTimeout: null
+};
+
+// Anti-autoclicker function
+const checkClickFrequency = () => {
+  const now = Date.now();
+  const timeSinceLastClick = now - CLICK_TRACKING.lastClick;
+  
+  // Reset click count if more than 1 second has passed
+  if (timeSinceLastClick > 1000) {
+    CLICK_TRACKING.clickCount = 0;
+  }
+  
+  CLICK_TRACKING.lastClick = now;
+  CLICK_TRACKING.clickCount++;
+  
+  // If more than 10 clicks per second, block for 5 seconds
+  if (CLICK_TRACKING.clickCount > 10) {
+    document.body.classList.add('blocked');
+    alert('Auto-clicking detected! Please wait 5 seconds.');
+    
+    // Disable all buttons
+    document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    
+    // Re-enable after 5 seconds
+    setTimeout(() => {
+      document.body.classList.remove('blocked');
+      document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+      CLICK_TRACKING.clickCount = 0;
+    }, 5000);
+    
+    return false;
+  }
+  
+  return true;
+};
+
+// Save state function
+const saveGameState = () => {
+  const gameState = {
+    bankBalance,
+    casinoBalance,
+    stockHoldings,
+    portfolioValue,
+    totalSpins,
+    totalWagered, 
+    totalWon,
+    activeJobs: Array.from(window.jobBoard?.activeJobs || []),
+    gamesWon: window.roulette?.gamesWon || 0,
+    timestamp: Date.now()
+  };
+  
+  localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+};
+
+// Load state function
+const loadGameState = () => {
+  const savedState = localStorage.getItem(SAVE_KEY);
+  if (savedState) {
+    const state = JSON.parse(savedState);
+    
+    // Verify the save isn't too old (24 hours)
+    if (Date.now() - state.timestamp < 24 * 60 * 60 * 1000) {
+      bankBalance = state.bankBalance;
+      casinoBalance = state.casinoBalance;
+      stockHoldings = state.stockHoldings;
+      portfolioValue = state.portfolioValue;
+      totalSpins = state.totalSpins;
+      totalWagered = state.totalWagered;
+      totalWon = state.totalWon;
+      
+      // Update UI
+      updateBankUI();
+      updateUI();
+      
+      // Restore job state if JobBoard exists
+      if (window.jobBoard) {
+        window.jobBoard.activeJobs = new Set(state.activeJobs);
+        window.jobBoard.renderJobs();
+      }
+      
+      // Restore roulette state if exists
+      if (window.roulette) {
+        window.roulette.gamesWon = state.gamesWon;
+        window.roulette.updateStats();
+      }
+    }
+  }
+};
+
+// Auto-save every minute
+setInterval(saveGameState, 60000);
+
+// Modify existing click handlers to include anti-autoclicker
+const addAntiAutoclicker = (element, handler) => {
+  return function(event) {
+    if (!checkClickFrequency()) {
+      event.preventDefault();
+      return;
+    }
+    handler.call(this, event);
+  };
+};
+
 // Tab switching functionality
 document.querySelectorAll('.nav-btn').forEach(button => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', addAntiAutoclicker(button, (e) => {
     // Update active button
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
@@ -11,7 +120,7 @@ document.querySelectorAll('.nav-btn').forEach(button => {
       section.classList.remove('active');
     });
     document.getElementById(`${appName}-app`).classList.add('active');
-  });
+  }));
 });
 
 // Add this at the beginning of the file with other global variables
@@ -38,11 +147,12 @@ const updateBankUI = () => {
 
 // Casino integration
 const transferToCasino = (amount) => {
+  if (!checkClickFrequency()) return;
   if (amount <= bankBalance) {
     bankBalance -= amount;
     casinoBalance += amount;
     updateBankUI();
-    updateUI(); // Casino UI update
+    updateUI();
     
     // Add transaction record
     const transactionDiv = document.createElement('div');
@@ -56,6 +166,7 @@ const transferToCasino = (amount) => {
       <div class="amount negative">-${formatMoney(amount)}</div>
     `;
     document.querySelector('.transactions').insertBefore(transactionDiv, document.querySelector('.transactions').children[1]);
+    saveGameState();
   }
 };
 
@@ -65,19 +176,6 @@ let currentBet = 10;
 let totalSpins = 0;
 let totalWagered = 0;
 let totalWon = 0;
-
-// Add this function for special bets
-const setSpecialBet = (type) => {
-  switch(type) {
-    case 'all':
-      currentBet = casinoBalance;
-      break;
-    case 'half':
-      currentBet = Math.floor(casinoBalance / 2);
-      break;
-  }
-  updateUI();
-};
 
 // Update the Casino's updateUI function
 const updateUI = () => {
@@ -92,10 +190,6 @@ const updateUI = () => {
   
   const spinButton = document.getElementById('spin');
   spinButton.disabled = casinoBalance < currentBet;
-
-  // Update special bet buttons
-  document.getElementById('all-in-btn').disabled = casinoBalance <= 0;
-  document.getElementById('half-in-btn').disabled = casinoBalance <= 1;
 };
 
 // Email App functionality
@@ -566,24 +660,9 @@ const checkWin = (results) => {
   return 0;
 };
 
-const createMoneyRain = () => {
-  const moneyRain = document.createElement('div');
-  moneyRain.className = 'money-rain';
-  
-  for (let i = 0; i < 50; i++) {
-    const money = document.createElement('div');
-    money.className = 'money';
-    money.style.left = `${Math.random() * 100}%`;
-    money.style.animationDelay = `${Math.random() * 1.5}s`;
-    money.innerHTML = '💵';
-    moneyRain.appendChild(money);
-  }
-  
-  document.querySelector('.slot-machine').appendChild(moneyRain);
-  setTimeout(() => moneyRain.remove(), 3000);
-};
-
+// Modify the spin function
 const spin = async () => {
+  if (!checkClickFrequency()) return;
   if (casinoBalance < currentBet) return;
 
   document.getElementById('spin').disabled = true;
@@ -604,29 +683,7 @@ const spin = async () => {
     casinoBalance += winAmount;
     totalWon += winAmount;
     const multiplier = (winAmount / currentBet).toFixed(1);
-    
-    // Create win overlay
-    const winOverlay = document.createElement('div');
-    winOverlay.className = 'win-overlay';
-    winOverlay.innerHTML = `<div>BIG WIN!<br>${formatMoney(winAmount)}</div>`;
-    document.querySelector('.slot-machine').appendChild(winOverlay);
-    
-    // Show win message with enhanced animation
     showMessage(`You won ${formatMoney(winAmount)} (${multiplier}x)!`, true);
-    
-    // Add money rain effect for big wins
-    if (winAmount >= currentBet * 5) {
-      createMoneyRain();
-    }
-    
-    // Show overlay with animation
-    setTimeout(() => winOverlay.classList.add('show'), 100);
-    
-    // Remove overlay after animation
-    setTimeout(() => {
-      winOverlay.classList.remove('show');
-      setTimeout(() => winOverlay.remove(), 300);
-    }, 2000);
     
     // Add winning transaction to bank
     const transactionDiv = document.createElement('div');
@@ -646,10 +703,12 @@ const spin = async () => {
 
   updateUI();
   document.getElementById('spin').disabled = false;
+  saveGameState();
 };
 
 // Add transfer to bank functionality
 const transferToBank = (amount) => {
+  if (!checkClickFrequency()) return;
   if (amount <= casinoBalance) {
     casinoBalance -= amount;
     bankBalance += amount;
@@ -668,6 +727,7 @@ const transferToBank = (amount) => {
       <div class="amount positive">+${formatMoney(amount)}</div>
     `;
     document.querySelector('.transactions').insertBefore(transactionDiv, document.querySelector('.transactions').children[1]);
+    saveGameState();
   }
 };
 
@@ -712,10 +772,6 @@ document.getElementById('decrease-bet').addEventListener('click', () => {
   }
 });
 
-// Add special bet button listeners
-document.getElementById('all-in-btn').addEventListener('click', () => setSpecialBet('all'));
-document.getElementById('half-in-btn').addEventListener('click', () => setSpecialBet('half'));
-
 // Initial UI update
 updateBankUI();
 updateUI();
@@ -731,6 +787,7 @@ class RussianRoulette {
     this.initializeElements();
     this.initializeEventListeners();
     this.resetGame();
+    this.loadState();
   }
 
   initializeElements() {
@@ -844,11 +901,13 @@ class RussianRoulette {
     this.triggerBtn.style.display = 'none';
     this.newGameBtn.style.display = 'inline-block';
     updateBankUI();
+    saveGameState();
   }
 
   gameOver() {
     this.chambers[this.currentPosition].classList.add('active');
     this.gameOverOverlay.style.display = 'block';
+    saveGameState();
   }
 
   tryAgain() {
@@ -865,13 +924,22 @@ class RussianRoulette {
     this.livesDisplay.textContent = this.lives;
     this.gamesWonDisplay.textContent = this.gamesWon;
   }
+
+  loadState() {
+    const savedState = localStorage.getItem(SAVE_KEY);
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      if (typeof state.gamesWon === 'number') {
+        this.gamesWon = state.gamesWon;
+        this.updateStats();
+      }
+    }
+  }
 }
 
 // Initialize Russian Roulette when document is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  const roulette = new RussianRoulette();
-  const emailApp = new EmailApp();
-  emailApp.init();
+  window.roulette = new RussianRoulette();
 });
 
 // Add this new class at the end of the file
@@ -897,6 +965,7 @@ class StockMarket {
     this.initializeStocks();
     this.setupEventListeners();
     this.startMarket();
+    this.loadState();
   }
 
   initializeStocks() {
@@ -945,6 +1014,7 @@ class StockMarket {
   }
 
   investAmount(amount) {
+    if (!checkClickFrequency()) return;
     if (amount <= bankBalance) {
       bankBalance -= amount;
       
@@ -982,6 +1052,7 @@ class StockMarket {
         transactionDiv,
         document.querySelector('.transactions').firstChild
       );
+      saveGameState();
     }
   }
 
@@ -1010,6 +1081,7 @@ class StockMarket {
         transactionDiv,
         document.querySelector('.transactions').firstChild
       );
+      saveGameState();
     }
   }
 
@@ -1111,6 +1183,17 @@ class StockMarket {
       btn.disabled = !stockHoldings[symbol];
     });
   }
+
+  loadState() {
+    const savedState = localStorage.getItem(SAVE_KEY);
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      if (state.stockHoldings) {
+        stockHoldings = state.stockHoldings;
+        this.updateUI();
+      }
+    }
+  }
 }
 
 // Initialize StockMarket when document is loaded
@@ -1196,6 +1279,7 @@ class JobBoard {
     
     this.setupEventListeners();
     this.renderJobs();
+    this.loadState();
   }
 
   setupEventListeners() {
@@ -1309,6 +1393,7 @@ class JobBoard {
       status.className = 'application-status error';
     }
     status.style.display = 'block';
+    saveGameState();
   }
 
   startWork(job) {
@@ -1358,6 +1443,7 @@ class JobBoard {
         status.textContent = `Working... ${progress.toFixed(1)}% complete`;
       }
     }, job.workTime * 10); // Adjust work speed
+    saveGameState();
   }
 
   workHarder() {
@@ -1373,11 +1459,26 @@ class JobBoard {
       status.textContent = 'Back to normal speed';
     }, 2000);
   }
+
+  loadState() {
+    const savedState = localStorage.getItem(SAVE_KEY);
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      if (state.activeJobs) {
+        this.activeJobs = new Set(state.activeJobs);
+        this.renderJobs();
+      }
+    }
+  }
 }
 
+// Initialize JobBoard when document is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // ... existing initialization code ...
-  const jobBoard = new JobBoard();
+  window.jobBoard = new JobBoard();
+  const emailApp = new EmailApp();
+  emailApp.init();
+  window.roulette = new RussianRoulette();
+  loadGameState(); // Load state after components are initialized
 });
 
 class ClockApp {
@@ -1513,192 +1614,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const clockApp = new ClockApp();
 });
 
-const validCodes = {
-  '2PPL': {
-    reward: 100000,
-    used: false
-  },
-  'GOLDENEGG': {
-    reward: 50000,
-    used: false
-  },
-  'SUMMERFUN': {
-    reward: 25000,
-    used: false
-  },
-  'MYSTICKEY': {
-    reward: 75000,
-    used: false
-  },
-  'STARLIGHT': {
-    reward: 40000,
-    used: false
-  },
-  'WINTERWONDER': {
-    reward: 60000,
-    used: false
-  },
-  'DAILYDOSE': {
-    reward: 15000,
-    used: false
-  },
-  'TREASURECHEST': {
-    reward: 80000,
-    used: false
-  },
-  'SUPERSTAR': {
-    reward: 45000,
-    used: false
-  },
-  'FLYAWAY': {
-    reward: 35000,
-    used: false
-  },
-  'HAPPYHALLOWEEN': {
-    reward: 66600,
-    used: false
-  },
-  'MERRYCHRISTMAS': {
-    reward: 25000,
-    used: false
-  },
-  'THANKYOU': {
-    reward: 10000,
-    used: false
-  },
-  'FREEDOMFIGHTER': {
-    reward: 17760,
-    used: false
-  },
-  'COSMICRIDE': {
-    reward: 42000,
-    used: false
-  },
-  'SQUADGOALS': {
-    reward: 30000,
-    used: false
-  },
-  'RACINGWITHTHEWIND': {
-    reward: 55000,
-    used: false
-  },
-  'DREAMBIG': {
-    reward: 70000,
-    used: false
-  },
-  'PURPLEHEART': {
-    reward: 25000,
-    used: false
-  },
-  'GHOSTMODE': {
-    reward: 31000,
-    used: false
-  },
-  'ROCKETROCK': {
-    reward: 45000,
-    used: false
-  },
-  'LUMINOUSLIE': {
-    reward: 28000,
-    used: false
-  },
-  'BATTLETESTED': {
-    reward: 65000,
-    used: false
-  },
-  'TIMEWARP': {
-    reward: 88000,
-    used: false
-  },
-  'CRYSTALCLEAR': {
-    reward: 37000,
-    used: false
-  },
-  'ENDLESSREWARDS': {
-    reward: 'random',
-    used: false
-  }
-};
-
-const redeemCode = () => {
-  const codeInput = document.getElementById('code-input');
-  const redeemButton = document.getElementById('redeem-code-btn');
-  const messageDiv = document.getElementById('code-message');
-  
-  const code = codeInput.value.trim().toUpperCase();
-  
-  if (validCodes[code] && !validCodes[code].used) {
-    let reward = validCodes[code].reward;
-    
-    // Handle random reward for ENDLESSREWARDS code
-    if (code === 'ENDLESSREWARDS') {
-      const randomMultiplier = Math.floor(Math.random() * 10) + 1; // 1-10x multiplier
-      reward = randomMultiplier * 10000; // Random reward between 10,000 and 100,000
-    }
-    
-    // Add money and mark code as used
-    bankBalance += reward;
-    validCodes[code].used = true;
-    
-    // Update UI
-    updateBankUI();
-    messageDiv.textContent = `Success! You received $${reward.toLocaleString()}!`;
-    messageDiv.className = 'code-message success';
-    
-    // Add celebration effect
-    messageDiv.style.animation = 'none';
-    messageDiv.offsetHeight; // Trigger reflow
-    messageDiv.style.animation = 'fadeIn 0.5s';
-    
-    // Add transaction record
-    const transactionDiv = document.createElement('div');
-    transactionDiv.className = 'transaction';
-    transactionDiv.innerHTML = `
-      <i class="fas fa-gift"></i>
-      <div class="transaction-details">
-        <div class="merchant">Code Redemption (${code})</div>
-        <div class="date">${new Date().toLocaleDateString()}</div>
-      </div>
-      <div class="amount positive">+${formatMoney(reward)}</div>
-    `;
-    document.querySelector('.transactions').insertBefore(
-      transactionDiv,
-      document.querySelector('.transactions').firstChild
-    );
-    
-    // Add special effects for big rewards
-    const balanceDisplay = document.querySelector('.balance');
-    balanceDisplay.style.animation = 'none';
-    balanceDisplay.offsetHeight; // Trigger reflow
-    
-    if (reward >= 50000) {
-      balanceDisplay.style.animation = 'flash 0.5s 3'; // Flash 3 times for big rewards
-    } else {
-      balanceDisplay.style.animation = 'flash 0.5s';
-    }
-    
-    // Clear input
-    codeInput.value = '';
-    
-  } else if (validCodes[code] && validCodes[code].used) {
-    messageDiv.textContent = 'This code has already been used!';
-    messageDiv.className = 'code-message error';
-  } else {
-    messageDiv.textContent = 'Invalid code!';
-    messageDiv.className = 'code-message error';
-  }
-};
-
+// Load saved state when document is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // ... existing initialization code ...
+  loadGameState();
   
-  // Code redemption event listener
-  document.getElementById('redeem-code-btn').addEventListener('click', redeemCode);
-  
-  // Add keypress support for enter key
-  document.getElementById('code-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      redeemCode();
-    }
-  });
+  // ... rest of the existing DOMContentLoaded code ...
+});
+
+// Save state before user leaves the page
+window.addEventListener('beforeunload', () => {
+  saveGameState();
 });
